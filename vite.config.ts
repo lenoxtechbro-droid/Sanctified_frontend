@@ -9,7 +9,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': { 
-        target: 'https://sanctified-backend.onrender.com', 
+        target: 'http://localhost:8000', 
         changeOrigin: true,
       },
     },
