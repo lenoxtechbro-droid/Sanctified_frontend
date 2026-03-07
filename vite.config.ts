@@ -9,7 +9,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': { 
-        target: 'https://sanctified-frontend.vercel.app/', 
+        target: 'https://sanctified-backend.onrender.com', 
         changeOrigin: true,
       },
     },
