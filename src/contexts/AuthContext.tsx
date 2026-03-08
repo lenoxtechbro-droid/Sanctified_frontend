@@ -12,13 +12,7 @@ interface AuthState {
   refreshProfile: () => Promise<void>;
 }
 
-const defaultProfile: Profile = {
-  id: "",
-  email: null,
-  full_name: null,
-  avatar_url: null,
-  role: "listener",
-};
+// Profile is imported from types/index.ts
 
 const AuthContext = createContext<AuthState>({
   user: null,
@@ -50,17 +44,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(null);
       return null;
     }
+    // Cast data to Profile type since Supabase type inference may not work correctly
+    const profileData = data as Profile | null;
+    if (!profileData) {
+      setProfile(null);
+      return null;
+    }
     const p: Profile = {
-      id: data.id,
-      email: data.email ?? null,
-      full_name: data.full_name ?? null,
-      avatar_url: data.avatar_url ?? null,
-      role: (data.role as UserRole) ?? "listener",
-      sermons_listened: data.sermons_listened ?? 0,
-      hours_this_month: data.hours_this_month ?? 0,
-      favorites_count: data.favorites_count ?? 0,
-      created_at: data.created_at,
-      updated_at: data.updated_at,
+      id: profileData.id,
+      email: profileData.email ?? null,
+      full_name: profileData.full_name ?? null,
+      avatar_url: profileData.avatar_url ?? null,
+      role: profileData.role ?? "listener",
+      sermons_listened: profileData.sermons_listened ?? 0,
+      hours_this_month: profileData.hours_this_month ?? 0,
+      favorites_count: profileData.favorites_count ?? 0,
+      created_at: profileData.created_at,
+      updated_at: profileData.updated_at,
     };
     setProfile(p);
     return p;

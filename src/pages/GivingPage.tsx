@@ -16,7 +16,6 @@ export function GivingPage() {
   const [category, setCategory] = useState<Category>("Tithe");
   const [method, setMethod] = useState<DonationPaymentMethod | null>(null);
   const [cardCurrency, setCardCurrency] = useState<SupportedCurrency>("USD");
-  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);

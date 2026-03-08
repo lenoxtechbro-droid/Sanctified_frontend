@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
@@ -13,7 +12,6 @@ type TabType = "all" | "sermons" | "articles";
 export function LibraryPage() {
   const { role } = useAuth();
   const { setNowPlaying } = usePlayer();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [commentTarget, setCommentTarget] = useState<{ episodeId?: string; articleId?: string } | null>(null);

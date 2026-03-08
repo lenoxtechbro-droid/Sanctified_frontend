@@ -4,7 +4,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import type { Article, Episode } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "https://sanctified-backend.onrender.com";
 const ADMIN_API_KEY: string | undefined = import.meta.env.VITE_ADMIN_API_KEY;
 
 type EpisodeForm = {
@@ -165,7 +164,7 @@ export function AdminDashboard() {
     setError(null);
     setSuccessMessage(null);
 
-    const { error: insertError } = await supabase.from("episodes").insert({
+    const episodeData = {
       title: episodeForm.title.trim(),
       description: episodeForm.description.trim() || null,
       author_name: episodeForm.author_name.trim() || "Pastor",
@@ -175,7 +174,9 @@ export function AdminDashboard() {
       video_url: episodeForm.video_url.trim() || null,
       thumbnail_url: episodeForm.thumbnail_url.trim() || null,
       is_premium: episodeForm.is_premium,
-    });
+    };
+
+    const { error: insertError } = await supabase.from("episodes").insert(episodeData as never);
 
     if (insertError) {
       setError(insertError.message ?? "Failed to create episode.");
@@ -195,20 +196,22 @@ export function AdminDashboard() {
     setError(null);
     setSuccessMessage(null);
 
+    const episodeUpdateData = {
+      title: episodeForm.title.trim(),
+      description: episodeForm.description.trim() || null,
+      author_name: episodeForm.author_name.trim() || "Pastor",
+      category: episodeForm.category.trim() || "Sermon",
+      duration_minutes: episodeForm.duration_minutes ? Number(episodeForm.duration_minutes) : null,
+      audio_url: episodeForm.audio_url.trim() || null,
+      video_url: episodeForm.video_url.trim() || null,
+      thumbnail_url: episodeForm.thumbnail_url.trim() || null,
+      is_premium: episodeForm.is_premium,
+      updated_at: new Date().toISOString(),
+    };
+
     const { error: updateError } = await supabase
       .from("episodes")
-      .update({
-        title: episodeForm.title.trim(),
-        description: episodeForm.description.trim() || null,
-        author_name: episodeForm.author_name.trim() || "Pastor",
-        category: episodeForm.category.trim() || "Sermon",
-        duration_minutes: episodeForm.duration_minutes ? Number(episodeForm.duration_minutes) : null,
-        audio_url: episodeForm.audio_url.trim() || null,
-        video_url: episodeForm.video_url.trim() || null,
-        thumbnail_url: episodeForm.thumbnail_url.trim() || null,
-        is_premium: episodeForm.is_premium,
-        updated_at: new Date().toISOString(),
-      })
+      .update(episodeUpdateData as never)
       .eq("id", editingEpisodeId);
 
     if (updateError) {
@@ -228,7 +231,7 @@ export function AdminDashboard() {
     setError(null);
     setSuccessMessage(null);
 
-    const { error: insertError } = await supabase.from("articles").insert({
+    const articleData = {
       title: articleForm.title.trim(),
       body: articleForm.body.trim() || null,
       excerpt: articleForm.excerpt.trim() || null,
@@ -237,7 +240,9 @@ export function AdminDashboard() {
       image_url: articleForm.image_url.trim() || null,
       read_minutes: articleForm.read_minutes ? Number(articleForm.read_minutes) : null,
       is_premium: articleForm.is_premium,
-    });
+    };
+
+    const { error: insertError } = await supabase.from("articles").insert(articleData as never);
 
     if (insertError) {
       setError(insertError.message ?? "Failed to create article.");
@@ -257,19 +262,21 @@ export function AdminDashboard() {
     setError(null);
     setSuccessMessage(null);
 
+    const articleUpdateData = {
+      title: articleForm.title.trim(),
+      body: articleForm.body.trim() || null,
+      excerpt: articleForm.excerpt.trim() || null,
+      author_name: articleForm.author_name.trim() || "Pastor",
+      category: articleForm.category.trim() || "Article",
+      image_url: articleForm.image_url.trim() || null,
+      read_minutes: articleForm.read_minutes ? Number(articleForm.read_minutes) : null,
+      is_premium: articleForm.is_premium,
+      updated_at: new Date().toISOString(),
+    };
+
     const { error: updateError } = await supabase
       .from("articles")
-      .update({
-        title: articleForm.title.trim(),
-        body: articleForm.body.trim() || null,
-        excerpt: articleForm.excerpt.trim() || null,
-        author_name: articleForm.author_name.trim() || "Pastor",
-        category: articleForm.category.trim() || "Article",
-        image_url: articleForm.image_url.trim() || null,
-        read_minutes: articleForm.read_minutes ? Number(articleForm.read_minutes) : null,
-        is_premium: articleForm.is_premium,
-        updated_at: new Date().toISOString(),
-      })
+      .update(articleUpdateData as never)
       .eq("id", editingArticleId);
 
     if (updateError) {

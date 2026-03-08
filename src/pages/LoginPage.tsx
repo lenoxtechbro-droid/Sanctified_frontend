@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
+import type { UserRole } from "../types";
 
 type Mode = "sign_in" | "sign_up";
 
@@ -45,7 +46,6 @@ export function LoginPage() {
     if (hasSpecial) score++;
     
     // Require at least score of 3 (Good) for valid password
-    const isValid = score >= 3;
     
     const levels = [
       { score: 0, label: "", color: "", isValid: false },
@@ -70,10 +70,15 @@ export function LoginPage() {
     }
   }, [authLoading, user, role, navigate]);
 
-  const getMyRole = async (userId: string): Promise<"admin" | "premium" | "listener"> => {
-    const { data, error } = await supabase.from("profiles").select("role").eq("id", userId).single();
+  const getMyRole = async (userId: string): Promise<UserRole> => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .single();
     if (error) return "listener";
-    const r = (data?.role as "admin" | "premium" | "listener" | undefined) ?? "listener";
+    const profileData = data as { role: string } | null;
+    const r = profileData?.role as UserRole | undefined;
     return r === "admin" || r === "premium" || r === "listener" ? r : "listener";
   };
 
