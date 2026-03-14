@@ -20,7 +20,7 @@ export function MainLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
-      <Header />
+      <Header onMenuOpen={() => setMobileMenuOpen(true)} />
       <main className="flex flex-1 flex-col gap-6 p-4 pb-24 md:flex-row md:px-6 md:py-6 md:pb-24 relative">
         <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
         <div className="min-w-0 flex-1">
