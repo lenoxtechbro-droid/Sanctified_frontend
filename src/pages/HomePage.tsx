@@ -8,6 +8,51 @@ import { ArticleCard } from "../components/Feed/ArticleCard";
 import { CommentSection } from "../components/Comments/CommentSection";
 import { VideoPlayerModal } from "../components/Video/VideoPlayerModal";
 
+type DateGroupItem = Episode | Article;
+
+interface GroupedSection {
+  dateKey: string;
+  items: DateGroupItem[];
+}
+
+const groupByDay = (items: DateGroupItem[]): GroupedSection[] => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const groups = new Map<string, DateGroupItem[]>();
+
+  items.forEach((item) => {
+    const date = new Date(item.created_at);
+    date.setHours(0, 0, 0, 0);
+
+    let dateKey: string;
+    if (date.getTime() === today.getTime()) {
+      dateKey = "Today";
+    } else if (date.getTime() === yesterday.getTime()) {
+      dateKey = "Yesterday";
+    } else {
+      dateKey = new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(date);
+    }
+
+    if (!groups.has(dateKey)) {
+      groups.set(dateKey, []);
+    }
+    groups.get(dateKey)!.push(item);
+  });
+
+  return Array.from(groups.entries())
+    .map(([dateKey, items]) => ({ dateKey, items }))
+    .sort((a, b) => new Date(a.items[0]!.created_at).getTime() - new Date(b.items[0]!.created_at).getTime())
+    .reverse();
+};
+
 export function HomePage() {
   const { role } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,6 +60,8 @@ export function HomePage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [commentTarget, setCommentTarget] = useState<{ episodeId?: string; articleId?: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [groupedEpisodes, setGroupedEpisodes] = useState<GroupedSection[]>([]);
+  const [groupedArticles, setGroupedArticles] = useState<GroupedSection[]>([]);
   const [videoTarget, setVideoTarget] = useState<Episode | null>(null);
 
   const fetchEpisodes = useCallback(async () => {
@@ -46,6 +93,11 @@ export function HomePage() {
   useEffect(() => {
     Promise.all([fetchEpisodes(), fetchArticles()]).finally(() => setLoading(false));
   }, [fetchEpisodes, fetchArticles]);
+
+  useEffect(() => {
+    setGroupedEpisodes(groupByDay(episodes));
+    setGroupedArticles(groupByDay(articles));
+  }, [episodes, articles]);
 
   return (
     <div className="space-y-8">
@@ -119,20 +171,35 @@ export function HomePage() {
             View All →
           </Link>
         </div>
-        {loading ? (
+{loading ? (
           <p className="py-6 text-center text-navy/60 dark:text-gray-400">Loading...</p>
+        ) : groupedEpisodes.length === 0 ? (
+          <p className="py-6 text-center text-navy/60 dark:text-gray-400">No sermons yet.</p>
         ) : (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {episodes.slice(0, 6).map((ep) => (
-              <EpisodeCard
-                key={ep.id}
-                episode={ep}
-                onCommentClick={() => setCommentTarget({ episodeId: ep.id })}
-                onVideoClick={() => setVideoTarget(ep)}
-              />
+          <div className="mt-4 space-y-6">
+            {groupedEpisodes.map((group) => (
+              <div key={group.dateKey} className="space-y-4">
+                <h3 className="text-sm font-semibold text-navy-dark dark:text-gray-200 border-b border-navy/20 pb-2">
+                  {group.dateKey}
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {group.items.slice(0, 6).map((item) => {
+                    const episode = item as Episode;
+                    return (
+                      <EpisodeCard
+                        key={episode.id}
+                        episode={episode}
+                        onCommentClick={() => setCommentTarget({ episodeId: episode.id })}
+                        onVideoClick={() => setVideoTarget(episode)}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         )}
+
       </section>
 
       {/* Recent Articles */}
@@ -143,17 +210,32 @@ export function HomePage() {
             View All →
           </Link>
         </div>
-        {loading ? null : (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {articles.slice(0, 3).map((art) => (
-              <ArticleCard
-                key={art.id}
-                article={art}
-                onCommentClick={() => setCommentTarget({ articleId: art.id })}
-              />
+        {loading ? null : groupedArticles.length === 0 ? (
+          <p className="py-6 text-center text-navy/60 dark:text-gray-400">No articles yet.</p>
+        ) : (
+          <div className="mt-4 space-y-6">
+            {groupedArticles.map((group) => (
+              <div key={group.dateKey} className="space-y-4">
+                <h3 className="text-sm font-semibold text-navy-dark dark:text-gray-200 border-b border-navy/20 pb-2">
+                  {group.dateKey}
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {group.items.map((item) => {
+                    const article = item as Article;
+                    return (
+                      <ArticleCard
+                        key={article.id}
+                        article={article}
+                        onCommentClick={() => setCommentTarget({ articleId: article.id })}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         )}
+
       </section>
     </div>
   );
