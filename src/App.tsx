@@ -12,6 +12,8 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { LibraryPage } from "./pages/LibraryPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { FavoritesPage } from "./pages/FavoritesPage";
+import { TrendingPage } from "./pages/TrendingPage";
 
 function ProtectedLayout() {
   const { user, loading } = useAuth();
@@ -50,6 +52,8 @@ function App() {
                 <Route path="sermons" element={<HomePage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="library" element={<LibraryPage />} />
+                <Route path="favorites" element={<FavoritesPage />} />
+                <Route path="trending" element={<TrendingPage />} />
                 <Route path="admin" element={<AdminDashboard />} />
               </Route>
             </Routes>
