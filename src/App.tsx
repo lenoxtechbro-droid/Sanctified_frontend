@@ -11,6 +11,7 @@ import { GivingPage } from "./pages/GivingPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { LibraryPage } from "./pages/LibraryPage";
 import { ArticlePage } from "./pages/ArticlePage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 
 function ProtectedLayout() {
   const { user, loading } = useAuth();
@@ -39,6 +40,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/sign-in" element={<LoginPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/" element={<ProtectedLayout />}>
                 <Route index element={<HomePage />} />
                 <Route path="checkout" element={<CheckoutPage />} />

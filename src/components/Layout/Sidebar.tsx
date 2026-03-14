@@ -12,8 +12,8 @@ export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const contactInfo = {
-    phone: "0103087732",
-    email: "Pastordnjoroge@gmail.com"
+    phone: "0722255997",
+    email: "sanctifiedchpaster@gmail.com"
   };
 
   // For mobile: show collapsed by default with just profile info

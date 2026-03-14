@@ -7,8 +7,8 @@ export function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
 
   const contactInfo = {
-    phone: "0103087732",
-    email: "Pastordnjoroge@gmail.com"
+    phone: "0722255997",
+    email: "sanctifiedchpaster@gmail.com"
   };
 
   return (
