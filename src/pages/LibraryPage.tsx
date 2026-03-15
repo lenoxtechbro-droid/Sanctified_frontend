@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { usePlayer } from "../contexts/PlayerContext";
 import type { Episode, Article } from "../types";
-import { CommentSection } from "../components/Comments/CommentSection";
+
 import { VideoPlayerModal } from "../components/Video/VideoPlayerModal";
 
 type TabType = "all" | "sermons" | "articles";
@@ -14,7 +14,6 @@ export function LibraryPage() {
   const { setNowPlaying } = usePlayer();
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
-  const [commentTarget, setCommentTarget] = useState<{ episodeId?: string; articleId?: string } | null>(null);
   const [videoTarget, setVideoTarget] = useState<Episode | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("all");
@@ -145,16 +144,10 @@ export function LibraryPage() {
         )}
       </motion.div>
 
-      {/* Comment Section Modal */}
-      {commentTarget && (
-        <CommentSection
-          episodeId={commentTarget.episodeId}
-          articleId={commentTarget.articleId}
-          onClose={() => setCommentTarget(null)}
-        />
-      )}
+
 
       {/* Video Player Modal */}
+
       {videoTarget && videoTarget.video_url && (
         <VideoPlayerModal
           title={videoTarget.title}

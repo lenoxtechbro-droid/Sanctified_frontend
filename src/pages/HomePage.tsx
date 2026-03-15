@@ -5,7 +5,6 @@ import { useAuth } from "../contexts/AuthContext";
 import type { Episode, Article } from "../types";
 import { EpisodeCard } from "../components/Feed/EpisodeCard";
 import { ArticleCard } from "../components/Feed/ArticleCard";
-import { CommentSection } from "../components/Comments/CommentSection";
 import { VideoPlayerModal } from "../components/Video/VideoPlayerModal";
 
 type DateGroupItem = Episode | Article;
@@ -58,7 +57,6 @@ export function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
-  const [commentTarget, setCommentTarget] = useState<{ episodeId?: string; articleId?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [groupedEpisodes, setGroupedEpisodes] = useState<GroupedSection[]>([]);
   const [groupedArticles, setGroupedArticles] = useState<GroupedSection[]>([]);
@@ -140,20 +138,12 @@ export function HomePage() {
           <div className="mt-2">
             <EpisodeCard
               episode={episodes[0]}
-              onCommentClick={() => setCommentTarget({ episodeId: episodes[0].id })}
               onVideoClick={() => setVideoTarget(episodes[0]!)}
             />
           </div>
         )}
       </section>
 
-      {commentTarget && (
-        <CommentSection
-          episodeId={commentTarget.episodeId}
-          articleId={commentTarget.articleId}
-          onClose={() => setCommentTarget(null)}
-        />
-      )}
 
       {videoTarget && videoTarget.video_url && (
         <VideoPlayerModal
@@ -189,8 +179,6 @@ export function HomePage() {
                       <EpisodeCard
                         key={episode.id}
                         episode={episode}
-                        onCommentClick={() => setCommentTarget({ episodeId: episode.id })}
-                        onVideoClick={() => setVideoTarget(episode)}
                       />
                     );
                   })}
@@ -199,6 +187,7 @@ export function HomePage() {
             ))}
           </div>
         )}
+
 
       </section>
 
@@ -226,8 +215,8 @@ export function HomePage() {
                       <ArticleCard
                         key={article.id}
                         article={article}
-                        onCommentClick={() => setCommentTarget({ articleId: article.id })}
                       />
+
                     );
                   })}
                 </div>

@@ -1,101 +1,144 @@
-import type { Episode } from "../../types";
-import { usePlayer } from "../../contexts/PlayerContext";
+import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useTheme } from "../../contexts/ThemeContext";
-import { LikeButton } from "../LikeButton";
-import { CommentCount } from "../CommentCount";
+import { usePlayer } from "../../contexts/PlayerContext";
+import type { Episode } from "../../types";
+import { CommentSection } from "../Comments/CommentSection";
+import { Link } from "react-router-dom";
 
 interface EpisodeCardProps {
   episode: Episode;
-  onCommentClick?: () => void;
-  onVideoClick?: () => void;
+  onVideoClick?: (episode: Episode) => void;
 }
 
-export function EpisodeCard({ episode, onCommentClick, onVideoClick }: EpisodeCardProps) {
-  const { setNowPlaying } = usePlayer();
+export function EpisodeCard({ 
+  episode, 
+  onVideoClick 
+}: EpisodeCardProps) {
+  const [showComments, setShowComments] = useState(false);
   const { role } = useAuth();
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const { setNowPlaying } = usePlayer();
+
   const canPlay = !episode.is_premium || role === "premium" || role === "admin";
 
   const handlePlay = () => {
     if (!canPlay) return;
-    setNowPlaying({
-      id: episode.id,
-      title: episode.title,
-      author: episode.author_name,
-      audioUrl: episode.audio_url,
-      thumbnailUrl: episode.thumbnail_url,
-    });
+
+    if (episode.video_url && onVideoClick) {
+      // Videos remain the same - trigger parent video modal
+      onVideoClick(episode);
+    } else if (episode.audio_url) {
+      // Audio cards - play in StickyPlayer
+      setNowPlaying({
+        id: episode.id,
+        title: episode.title,
+        author: episode.author_name,
+        audioUrl: episode.audio_url,
+        thumbnailUrl: episode.thumbnail_url,
+      });
+    }
   };
 
   return (
-    <article className={`rounded-xl border p-4 shadow-sm transition hover:shadow-md ${
-      isDark 
-        ? "border-gray-700 bg-gray-800" 
-        : "border-navy/10 bg-white"
-    }`}>
-      <div className="flex gap-4">
+    <article className="group rounded-xl border overflow-hidden shadow-sm transition-all hover:shadow-md hover:-translate-y-1 bg-white dark:bg-gray-800 border-navy/10 dark:border-gray-700">
+      {/* Thumbnail with Play Overlay */}
+      <div className="relative h-48 w-full overflow-hidden bg-navy/10 dark:bg-gray-700">
+        {episode.thumbnail_url ? (
+          <img 
+            src={episode.thumbnail_url} 
+            alt={episode.title}
+            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" 
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-5xl text-navy/30 dark:text-gray-500">
+            🎙️
+          </div>
+        )}
+
+        {/* Play Overlay Button */}
         <button
           type="button"
           onClick={handlePlay}
           disabled={!canPlay}
-          className={`relative h-24 w-24 shrink-0 overflow-hidden rounded-lg ${
-            isDark ? "bg-gray-700" : "bg-navy/10"
-          }`}
+          className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-all duration-300 opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-black/40"
+          aria-label="Play episode"
         >
-          {episode.thumbnail_url ? (
-            <img src={episode.thumbnail_url} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <span className={`flex h-full w-full items-center justify-center text-2xl ${isDark ? "text-gray-400" : "text-gold"}`}>♪</span>
-          )}
-          <span className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition hover:opacity-100">
-            <span className={`rounded-full p-2 ${isDark ? "bg-gray-700 text-gray-200" : "bg-white/90 text-navy"}`}>▶</span>
+          <span className="w-16 h-16 bg-white/95 rounded-full flex items-center justify-center text-2xl text-navy shadow-2xl hover:bg-white">
+            ▶
+          </span>
+        </button>
+
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex gap-1">
+          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-gold text-white">
+            {episode.category}
           </span>
           {episode.is_premium && (
-            <span className="absolute left-1 top-1 rounded bg-gold px-1.5 py-0.5 text-xs font-medium text-white">
+            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-amber-500 text-white">
               Premium
             </span>
           )}
-        </button>
-        <div className="min-w-0 flex-1">
-          <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
-            isDark 
-              ? "bg-gray-700 text-gray-300" 
-              : "bg-navy/10 text-navy"
-          }`}>
-            {episode.category}
-          </span>
-          <h3 className={`mt-1 font-semibold line-clamp-2 ${
-            isDark ? "text-gray-100" : "text-navy-dark"
-          }`}>
-            {episode.title}
-          </h3>
-          <p className={`text-sm ${isDark ? "text-gray-400" : "text-navy/70"}`}>
-            {episode.author_name}
-          </p>
-          <p className={`text-xs ${isDark ? "text-gray-500" : "text-navy/60"}`}>
-            {episode.duration_minutes != null ? `${episode.duration_minutes} min` : ""}
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <LikeButton targetType="episode" targetId={episode.id} />
-            <CommentCount episodeId={episode.id} onViewClick={onCommentClick} />
-            {episode.video_url && (
-              <button
-                type="button"
-                onClick={
-                  onVideoClick
-                    ? onVideoClick
-                    : () => window.open(episode.video_url as string, "_blank", "noopener,noreferrer")
-                }
-                className="text-xs font-medium text-gold hover:underline"
-              >
-                Watch video
-              </button>
-            )}
-          </div>
         </div>
+        {episode.video_url && (
+          <span className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-semibold bg-navy text-white">
+            🎬 Video
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-5">
+        <h3 className="font-bold text-lg leading-tight line-clamp-2 text-navy-dark dark:text-gray-100 mb-2 group-hover:text-gold transition-colors">
+          {episode.title}
+        </h3>
+        <p className="text-sm text-navy/70 dark:text-gray-400 line-clamp-2 mb-3">
+          {episode.author_name}
+        </p>
+        
+        <div className="flex items-center justify-between text-xs text-navy/60 dark:text-gray-500 mb-4">
+          <span>
+            {episode.duration_minutes ? `${episode.duration_minutes} min` : "Podcast"}
+          </span>
+<button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowComments(true);
+              }}
+              className="flex items-center gap-1 hover:text-gold transition-colors"
+            >
+              💬 Comments
+            </button>
+        </div>
+
+        {/* Play Button */}
+        <button
+          onClick={handlePlay}
+          disabled={!canPlay}
+          className={`w-full rounded-lg py-3 px-4 font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            canPlay
+              ? "bg-gradient-to-r from-gold to-gold-dark text-white hover:from-gold-dark shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+              : "bg-navy/20 text-navy/50 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"
+          }`}
+        >
+          <span>▶</span>
+          {episode.video_url ? "Watch Video" : "Play Audio"}
+        </button>
+
+        {!canPlay && (
+          <p className="mt-2 text-xs text-center text-amber-600 dark:text-amber-400">
+            Premium content - Upgrade to play
+          </p>
+        )}
+
+        {showComments && (
+          <div className="border-t border-navy/10 dark:border-gray-700 pt-4 max-h-96 overflow-y-auto">
+            <CommentSection 
+              episodeId={episode.id}
+              onClose={() => setShowComments(false)} 
+            />
+          </div>
+        )}
       </div>
     </article>
   );
 }
+

@@ -1,17 +1,20 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "../../types";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { LikeButton } from "../LikeButton";
 import { CommentCount } from "../CommentCount";
+import { CommentSection } from "../Comments/CommentSection";
 
 interface ArticleCardProps {
   article: Article;
-  onCommentClick?: () => void;
 }
 
-export function ArticleCard({ article, onCommentClick }: ArticleCardProps) {
+export function ArticleCard({ article }: ArticleCardProps) {
+  const [showComments, setShowComments] = useState(false);
   const { role } = useAuth();
+
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const canRead = !article.is_premium || role === "premium" || role === "admin";
@@ -28,7 +31,9 @@ export function ArticleCard({ article, onCommentClick }: ArticleCardProps) {
         ) : (
           <div className={`flex h-full w-full items-center justify-center text-4xl ${
             isDark ? "text-gray-500" : "text-navy/30"
-          }`}>📖</div>
+          }`}>
+            📖
+          </div>
         )}
         <span className="absolute left-2 top-2 rounded bg-gold px-2 py-0.5 text-xs font-medium text-white">
           {article.category}
@@ -58,7 +63,7 @@ export function ArticleCard({ article, onCommentClick }: ArticleCardProps) {
         <div className="mt-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <LikeButton targetType="article" targetId={article.id} />
-            <CommentCount articleId={article.id} onViewClick={onCommentClick} />
+            <CommentCount articleId={article.id} onViewClick={() => setShowComments(true)} />
           </div>
           {canRead ? (
             <Link
@@ -73,6 +78,15 @@ export function ArticleCard({ article, onCommentClick }: ArticleCardProps) {
             </span>
           )}
         </div>
+
+        {showComments && (
+          <div className="border-t border-navy/10 dark:border-gray-700 pt-4 max-h-96 overflow-y-auto">
+            <CommentSection 
+              articleId={article.id}
+              onClose={() => setShowComments(false)} 
+            />
+          </div>
+        )}
       </div>
     </article>
   );

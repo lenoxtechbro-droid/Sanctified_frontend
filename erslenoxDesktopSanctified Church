@@ -1,0 +1,89 @@
+[33mcommit c18387f23466b4916b8abba94553a9cd152bf4f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mupdate[m[33m)[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sat Mar 14 18:15:09 2026 +0300
+
+    search tap & humberger icon on action
+
+[33mcommit af60c2fde4567183fa44051523fb76486fd7deab[m[33m ([m[1;31morigin/update[m[33m)[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sat Mar 14 16:54:07 2026 +0300
+
+    humbger menu
+
+[33mcommit 538e2e66cfce80d79c25aa93b4d87f6ec163ebc8[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sat Mar 14 16:42:15 2026 +0300
+
+    feverite and trending page update
+
+[33mcommit 1237d2a52793a56522802e3954921a44fc06bcca[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sat Mar 14 14:53:06 2026 +0300
+
+    Resetpassword configaration
+
+[33mcommit dd8e8258c1975e2267de0f81bdd23d196145c775[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sat Mar 14 12:18:20 2026 +0300
+
+    Sorting posts
+
+[33mcommit d7cb472f0fad14eca266a40b4c38bc4db7ccdf06[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sun Mar 8 21:58:16 2026 +0300
+
+    Favicon update
+
+[33mcommit daf804699c74ab718228dc7935111edc0bc133b2[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sun Mar 8 20:44:09 2026 +0300
+
+    fix error
+
+[33mcommit 028a08f54f635b934ef5ae6151e618878464eea5[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sun Mar 8 20:43:20 2026 +0300
+
+    debug deployment versel
+
+[33mcommit 6c2238a28c06a812c6d87764b8642960934fe688[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sun Mar 8 18:32:54 2026 +0300
+
+    Remove .env from Git tracking (keep locally)
+
+[33mcommit a588d8784fecea036e8d69f8221b24779303838a[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sun Mar 8 18:25:17 2026 +0300
+
+    Add environment variables to .gitignore
+
+[33mcommit 8b4bd4dc756923371eae4270be9133359d5a701a[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sun Mar 8 17:00:52 2026 +0300
+
+    Fix SPA routing with catch-all rewrite
+
+[33mcommit 9f39ab8d808cb3fb974910846ccda9cb98903c1b[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sat Mar 7 16:29:51 2026 +0300
+
+    URL .env update
+
+[33mcommit 9c4221e366c16c35b1a4d6babfa3e746e49ba0df[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sat Mar 7 08:55:37 2026 +0300
+
+    FrontendUrl
+
+[33mcommit f896d92849e47bc3522e4f67df063323a1955b9e[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Sat Mar 7 08:54:09 2026 +0300
+
+    new URL
+
+[33mcommit 9baf964198e52cfcfb08bbc099ea018b035887d9[m
+Author: Lenox <lenoxtechbro@gmail.com>
+Date:   Thu Mar 5 13:28:19 2026 +0300
+
+    1st branch commit

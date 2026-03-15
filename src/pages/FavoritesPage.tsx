@@ -7,7 +7,6 @@ import { useTheme } from "../contexts/ThemeContext";
 import type { Episode, Article } from "../types";
 import { EpisodeCard } from "../components/Feed/EpisodeCard";
 import { ArticleCard } from "../components/Feed/ArticleCard";
-import { CommentSection } from "../components/Comments/CommentSection";
 import { VideoPlayerModal } from "../components/Video/VideoPlayerModal";
 
 type Tab = "episodes" | "articles";
@@ -21,7 +20,6 @@ export function FavoritesPage() {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [commentTarget, setCommentTarget] = useState<{ episodeId?: string; articleId?: string } | null>(null);
   const [videoTarget, setVideoTarget] = useState<Episode | null>(null);
 
   const fetchFavorites = useCallback(async () => {
@@ -177,7 +175,6 @@ export function FavoritesPage() {
                     <EpisodeCard
                       key={ep.id}
                       episode={ep}
-                      onCommentClick={() => setCommentTarget({ episodeId: ep.id })}
                       onVideoClick={() => setVideoTarget(ep)}
                     />
                   ))}
@@ -191,22 +188,12 @@ export function FavoritesPage() {
                   <ArticleCard
                     key={art.id}
                     article={art}
-                    onCommentClick={() => setCommentTarget({ articleId: art.id })}
                   />
                 ))}
               </div>
             )}
           </motion.div>
         </AnimatePresence>
-      )}
-
-      {/* Comment section overlay */}
-      {commentTarget && (
-        <CommentSection
-          episodeId={commentTarget.episodeId}
-          articleId={commentTarget.articleId}
-          onClose={() => setCommentTarget(null)}
-        />
       )}
 
       {/* Video modal */}
