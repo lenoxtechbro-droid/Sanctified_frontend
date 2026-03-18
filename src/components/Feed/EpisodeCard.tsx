@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { usePlayer } from "../../contexts/PlayerContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import type { Episode } from "../../types";
 import { CommentSection } from "../Comments/CommentSection";
+import { LikeButton } from "../LikeButton";
 import { Link } from "react-router-dom";
 
 interface EpisodeCardProps {
@@ -94,19 +96,22 @@ export function EpisodeCard({
           {episode.author_name}
         </p>
         
-        <div className="flex items-center justify-between text-xs text-navy/60 dark:text-gray-500 mb-4">
-          <span>
-            {episode.duration_minutes ? `${episode.duration_minutes} min` : "Podcast"}
-          </span>
-<button
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <LikeButton targetType="episode" targetId={episode.id} />
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowComments(true);
               }}
-              className="flex items-center gap-1 hover:text-gold transition-colors"
+              className="flex items-center gap-1 hover:text-gold transition-colors text-xs text-navy/60 dark:text-gray-500"
             >
               💬 Comments
             </button>
+          </div>
+          <span className="text-xs text-navy/60 dark:text-gray-500">
+            {episode.duration_minutes ? `${episode.duration_minutes} min` : "Podcast"}
+          </span>
         </div>
 
         {/* Play Button */}
