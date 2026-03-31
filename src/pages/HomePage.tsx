@@ -6,6 +6,7 @@ import type { Episode, Article } from "../types";
 import { EpisodeCard } from "../components/Feed/EpisodeCard";
 import { ArticleCard } from "../components/Feed/ArticleCard";
 import { VideoPlayerModal } from "../components/Video/VideoPlayerModal";
+import { MorphingSquare } from "../components/ui/morphing-square";
 
 type DateGroupItem = Episode | Article;
 
@@ -162,7 +163,7 @@ export function HomePage() {
           </Link>
         </div>
 {loading ? (
-          <p className="py-6 text-center text-navy/60 dark:text-gray-400">Loading...</p>
+          <div className="py-6 flex justify-center"><MorphingSquare message="Loading..." /></div>
         ) : groupedEpisodes.length === 0 ? (
           <p className="py-6 text-center text-navy/60 dark:text-gray-400">No sermons yet.</p>
         ) : (
@@ -176,9 +177,10 @@ export function HomePage() {
                   {group.items.slice(0, 6).map((item) => {
                     const episode = item as Episode;
                     return (
-                      <EpisodeCard
+                  <EpisodeCard
                         key={episode.id}
                         episode={episode}
+                        onVideoClick={(ep) => setVideoTarget(ep)}
                       />
                     );
                   })}
@@ -199,7 +201,9 @@ export function HomePage() {
             View All →
           </Link>
         </div>
-        {loading ? null : groupedArticles.length === 0 ? (
+        {loading ? (
+          <div className="py-6 flex justify-center"><MorphingSquare message="Loading..." /></div>
+        ) : groupedArticles.length === 0 ? (
           <p className="py-6 text-center text-navy/60 dark:text-gray-400">No articles yet.</p>
         ) : (
           <div className="mt-4 space-y-6">

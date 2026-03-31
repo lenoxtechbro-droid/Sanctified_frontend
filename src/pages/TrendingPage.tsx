@@ -8,6 +8,7 @@ import { EpisodeCard } from "../components/Feed/EpisodeCard";
 import { ArticleCard } from "../components/Feed/ArticleCard";
 import { CommentSection } from "../components/Comments/CommentSection";
 import { VideoPlayerModal } from "../components/Video/VideoPlayerModal";
+import { MorphingSquare } from "../components/ui/morphing-square";
 
 type Tab = "episodes" | "articles";
 
@@ -146,13 +147,8 @@ export function TrendingPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className={`h-40 animate-pulse rounded-xl ${isDark ? "bg-gray-800" : "bg-navy/5"}`}
-            />
-          ))}
+        <div className="py-20 flex justify-center">
+          <MorphingSquare message="Loading..." />
         </div>
       ) : (
         <AnimatePresence mode="wait">

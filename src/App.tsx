@@ -16,13 +16,15 @@ import { FavoritesPage } from "./pages/FavoritesPage";
 import { TrendingPage } from "./pages/TrendingPage";
 import { SearchPage } from "./pages/SearchPage";
 
+import { MorphingSquare } from "./components/ui/morphing-square";
+
 function ProtectedLayout() {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-navy/70 dark:text-white/70">
-        Loading...
+      <div className="py-20 flex items-center justify-center">
+        <MorphingSquare message="Loading..." />
       </div>
     );
   }

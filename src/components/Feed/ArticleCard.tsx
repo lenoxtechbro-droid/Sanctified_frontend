@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "../../types";
 import { useAuth } from "../../contexts/AuthContext";
@@ -9,9 +9,10 @@ import { CommentSection } from "../Comments/CommentSection";
 
 interface ArticleCardProps {
   article: Article;
+  onCommentClick?: () => void;
 }
 
-export function ArticleCard({ article }: ArticleCardProps) {
+export function ArticleCard({ article, onCommentClick }: ArticleCardProps) {
   const [showComments, setShowComments] = useState(false);
   const { role } = useAuth();
 
@@ -63,7 +64,10 @@ export function ArticleCard({ article }: ArticleCardProps) {
         <div className="mt-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <LikeButton targetType="article" targetId={article.id} />
-            <CommentCount articleId={article.id} onViewClick={() => setShowComments(true)} />
+            <CommentCount articleId={article.id} onViewClick={() => {
+              if (onCommentClick) onCommentClick();
+              else setShowComments(true);
+            }} />
           </div>
           {canRead ? (
             <Link

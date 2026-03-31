@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface VideoPlayerModalProps {
   title: string;
@@ -8,6 +8,15 @@ interface VideoPlayerModalProps {
 
 export function VideoPlayerModal({ title, videoUrl, onClose }: VideoPlayerModalProps) {
   const [error, setError] = useState<string | null>(null);
+  const [loadStatus, setLoadStatus] = useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
+  const [debugInfo, setDebugInfo] = useState('');
+
+  useEffect(() => {
+    console.log('[VideoModal] Opening with src:', videoUrl);
+    setLoadStatus('idle');
+    setError(null);
+    setDebugInfo(`Src: ${videoUrl}`);
+  }, [videoUrl]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
@@ -37,7 +46,25 @@ export function VideoPlayerModal({ title, videoUrl, onClose }: VideoPlayerModalP
             playsInline
             preload="auto"
             className="h-full w-full"
-            onError={() => setError("This video could not be loaded. It may be in an unsupported format or the link may be invalid.")}
+            onLoadStart={() => {
+              console.log('[Video] loadstart');
+              setLoadStatus('loading');
+            }}
+            onLoadedMetadata={(e) => {
+              console.log('[Video] loadedmetadata, duration:', e.currentTarget.duration);
+              setLoadStatus('loaded');
+            }}
+            onCanPlay={() => {
+              console.log('[Video] canplay');
+              setLoadStatus('loaded');
+            }}
+            onPlay={() => console.log('[Video] play started')}
+            onPause={() => console.log('[Video] paused')}
+            onError={(e) => {
+              console.error('[Video] Error details:', e.currentTarget.error);
+              setLoadStatus('error');
+              setError("Failed to load video. Check console for details.");
+            }}
           />
           {error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-900 p-4 text-center">
@@ -52,6 +79,12 @@ export function VideoPlayerModal({ title, videoUrl, onClose }: VideoPlayerModalP
               </a>
             </div>
           )}
+          {/* Debug overlay always visible */}
+          <div className="absolute bottom-4 left-4 right-4 bg-black/50 text-white text-xs p-2 rounded opacity-90 max-h-20 overflow-y-auto">
+            <div>Status: {loadStatus}</div>
+            <div>{debugInfo}</div>
+            <div>Try manual play with controls above</div>
+          </div>
         </div>
         <div className="border-t border-gray-800 px-4 py-3">
           <h2 className="truncate text-sm font-semibold text-gray-100">{title}</h2>
@@ -60,5 +93,4 @@ export function VideoPlayerModal({ title, videoUrl, onClose }: VideoPlayerModalP
     </div>
   );
 }
-
 
