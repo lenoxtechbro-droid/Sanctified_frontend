@@ -33,6 +33,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(null);
   }, []);
 
+  const buildProfile = (profileData: Profile): Profile => ({
+    id: profileData.id,
+    email: profileData.email ?? null,
+    full_name: profileData.full_name ?? null,
+    avatar_url: profileData.avatar_url ?? null,
+    role: profileData.role ?? "listener",
+    sermons_listened: profileData.sermons_listened ?? 0,
+    hours_this_month: profileData.hours_this_month ?? 0,
+    favorites_count: profileData.favorites_count ?? 0,
+    created_at: profileData.created_at,
+    updated_at: profileData.updated_at,
+  });
+
+  /**
+   * Try to create a profile row for users whose DB trigger didn't fire
+   * (e.g. signed up before trigger existed, or trigger hit a race condition).
+   */
+  const ensureProfile = useCallback(async (u: User): Promise<Profile | null> => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .upsert(
+        {
+          id: u.id,
+          email: u.email ?? null,
+          full_name: u.user_metadata?.full_name ?? null,
+        },
+        { onConflict: "id", ignoreDuplicates: true }
+      )
+      .select("*")
+      .single();
+
+    if (error) {
+      console.warn("Profile upsert error:", error);
+      return null;
+    }
+    const profileData = data as Profile | null;
+    if (!profileData) return null;
+    const p = buildProfile(profileData);
+    setProfile(p);
+    return p;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const fetchProfile = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from("profiles")
@@ -50,25 +93,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(null);
       return null;
     }
-    const p: Profile = {
-      id: profileData.id,
-      email: profileData.email ?? null,
-      full_name: profileData.full_name ?? null,
-      avatar_url: profileData.avatar_url ?? null,
-      role: profileData.role ?? "listener",
-      sermons_listened: profileData.sermons_listened ?? 0,
-      hours_this_month: profileData.hours_this_month ?? 0,
-      favorites_count: profileData.favorites_count ?? 0,
-      created_at: profileData.created_at,
-      updated_at: profileData.updated_at,
-    };
+    const p = buildProfile(profileData);
     setProfile(p);
     return p;
   }, []);
 
+  /**
+   * Fetch the profile for a user, and if it doesn't exist, create it.
+   * This prevents the forced sign-out that was happening before.
+   */
+  const fetchOrCreateProfile = useCallback(async (u: User): Promise<Profile | null> => {
+    const existing = await fetchProfile(u.id);
+    if (existing) return existing;
+
+    // Profile row is missing — create it as a fallback
+    console.info("Profile missing for authenticated user, creating one...");
+    return ensureProfile(u);
+  }, [fetchProfile, ensureProfile]);
+
   const refreshProfile = useCallback(async () => {
-    if (user?.id) await fetchProfile(user.id);
-  }, [user?.id, fetchProfile]);
+    if (user) await fetchOrCreateProfile(user);
+  }, [user, fetchOrCreateProfile]);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,12 +141,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (cancelled) return;
         setUser(userData.user);
 
-        const p = await fetchProfile(userData.user.id);
-        if (!p) {
-          await supabase.auth.signOut();
-          if (!cancelled) clearAuthState();
-          return;
-        }
+        // Fetch or create profile — don't sign out if missing
+        await fetchOrCreateProfile(userData.user);
       } catch (err) {
         console.warn("Auth init failed:", err);
         if (!cancelled) clearAuthState();
@@ -112,14 +153,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user?.id) {
-        fetchProfile(session.user.id).then((p) => {
-          if (!p) {
-            supabase.auth.signOut().finally(() => clearAuthState());
-          }
-        });
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        clearAuthState();
+        return;
+      }
+
+      const sessionUser = session?.user ?? null;
+      setUser(sessionUser);
+
+      if (sessionUser) {
+        // For email confirmation or sign-in, fetch or create profile
+        fetchOrCreateProfile(sessionUser);
       } else {
         setProfile(null);
       }
@@ -129,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, [fetchProfile, clearAuthState]);
+  }, [fetchOrCreateProfile, clearAuthState]);
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
